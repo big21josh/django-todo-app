@@ -1,0 +1,201 @@
+{% extends 'todos/base.html' %}
+{% block title %}Taskflow — New Task{% endblock %}
+{% block status_label %}New Task{% endblock %}
+
+{% block extra_css %}
+<style>
+    /* ── Back link ── */
+    .back-link {
+        display: inline-flex;
+        align-items: center;
+        gap: 5px;
+        font-size: 14px;
+        font-weight: 500;
+        color: var(--accent);
+        text-decoration: none;
+        margin-bottom: 22px;
+        opacity: 0.85;
+        transition: opacity 0.15s ease, transform 0.15s ease;
+    }
+    .back-link:hover { opacity: 1; transform: translateX(-2px); }
+    .back-link .ch { font-size: 17px; line-height: 1; }
+
+    /* ── Form input field wrap ── */
+    .field-wrap {
+        margin-bottom: 20px;
+    }
+
+    .field-wrap label {
+        display: block;
+        font-size: 11.5px;
+        font-weight: 600;
+        letter-spacing: 0.07em;
+        text-transform: uppercase;
+        color: var(--ink-tertiary);
+        margin-bottom: 7px;
+    }
+
+    /* ── Inline errors ── */
+    .errorlist {
+        list-style: none;
+        margin-top: 6px;
+    }
+    .errorlist li {
+        font-size: 12.5px;
+        color: var(--danger);
+        display: flex;
+        align-items: center;
+        gap: 5px;
+    }
+    .errorlist li::before { content: '⚠'; font-size: 11px; }
+
+    /* ── Character counter ── */
+    .char-count {
+        font-size: 12px;
+        color: var(--ink-ghost);
+        text-align: right;
+        margin-top: 5px;
+        font-variant-numeric: tabular-nums;
+        transition: color 0.2s ease;
+    }
+
+    /* ── Checkbox row (iOS-style toggle-like row) ── */
+    .checkbox-row {
+        display: flex;
+        align-items: center;
+        gap: 13px;
+        padding: 13px 16px;
+        background: rgba(255,255,255,0.75);
+        border-radius: var(--r-md);
+        border: 1px solid var(--border-strong);
+        cursor: pointer;
+        transition: background 0.15s ease;
+        box-shadow: var(--shadow-sm);
+    }
+    .checkbox-row:hover { background: rgba(255,255,255,0.95); }
+
+    .checkbox-row input[type="checkbox"] {
+        width: 20px; height: 20px;
+        accent-color: var(--accent);
+        cursor: pointer;
+        flex-shrink: 0;
+    }
+
+    .checkbox-row span {
+        font-size: 15px;
+        font-weight: 400;
+        color: var(--ink);
+    }
+
+    /* ── Required badge ── */
+    .req {
+        display: inline-block;
+        font-size: 10px;
+        color: var(--danger);
+        font-weight: 700;
+        margin-left: 3px;
+        vertical-align: top;
+        line-height: 1.8;
+    }
+
+    /* ── Section line ── */
+    .sep {
+        height: 1px;
+        background: var(--border);
+        margin: 24px 0;
+    }
+
+    /* ── Action row ── */
+    .action-row {
+        display: flex;
+        gap: 10px;
+    }
+    .action-row .btn { flex: 1; }
+
+    /* ── Helpful hint text ── */
+    .field-hint {
+        font-size: 12px;
+        color: var(--ink-ghost);
+        margin-top: 5px;
+        line-height: 1.4;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<!-- Back -->
+<a href="{% url 'todo_list' %}" class="back-link">
+    <span class="ch">‹</span> Tasks
+</a>
+
+<!-- Title -->
+<div class="page-header">
+    <h1 class="page-title">New Task</h1>
+</div>
+
+<!-- Form -->
+<form method="post" novalidate>
+    {% csrf_token %}
+
+    {% for field in form %}
+    <div class="field-wrap">
+
+        {% if field.field.widget.input_type == 'checkbox' %}
+            <label class="checkbox-row">
+                {{ field }}
+                <span>{{ field.label }}</span>
+            </label>
+
+        {% else %}
+            <label for="{{ field.id_for_label }}">
+                {{ field.label }}
+                {% if field.field.required %}<span class="req">*</span>{% endif %}
+            </label>
+            {{ field }}
+            {% if field.name == 'title' %}
+                <div class="char-count" id="title-count">0 / 120</div>
+            {% endif %}
+            {% if field.name == 'description' %}
+                <div class="field-hint">Optional — add extra context or notes.</div>
+            {% endif %}
+        {% endif %}
+
+        {% if field.errors %}
+        <ul class="errorlist">
+            {% for error in field.errors %}
+            <li>{{ error }}</li>
+            {% endfor %}
+        </ul>
+        {% endif %}
+    </div>
+    {% endfor %}
+
+    <div class="sep"></div>
+
+    <div class="action-row">
+        <a href="{% url 'todo_list' %}" class="btn btn-ghost">Cancel</a>
+        <button type="submit" class="btn btn-primary">Save Task &rsaquo;</button>
+    </div>
+</form>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    const input = document.getElementById('id_title');
+    const count = document.getElementById('title-count');
+    if (input && count) {
+        const MAX = 120;
+        const update = () => {
+            const n = input.value.length;
+            count.textContent = `${n} / ${MAX}`;
+            count.style.color = n >= MAX
+                ? 'var(--danger)'
+                : n > MAX * 0.80
+                    ? '#E07A00'
+                    : 'var(--ink-ghost)';
+        };
+        input.addEventListener('input', update);
+        update();
+    }
+</script>
+{% endblock %}

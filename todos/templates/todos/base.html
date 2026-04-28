@@ -1,0 +1,704 @@
+<!DOCTYPE html>
+{% load static %}
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}Muwoni{% endblock %}</title>
+
+    <!-- Fonts: Fraunces (editorial display) + DM Sans (refined body) -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300;0,9..144,500;0,9..144,700;1,9..144,400&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+
+    <style>
+        /* ─────────────────────────────────────────
+           DESIGN TOKENS
+        ───────────────────────────────────────── */
+        :root {
+            --bg:             #F0EEE9;
+            --glass:          rgba(255, 255, 255, 0.72);
+            --glass-border:   rgba(255, 255, 255, 0.92);
+
+            --ink:            #1A1620;
+            --ink-secondary:  #5C5870;
+            --ink-tertiary:   #9895AA;
+            --ink-ghost:      #C8C5D4;
+
+            --accent:         #2E6FE8;
+            --accent-soft:    rgba(46, 111, 232, 0.10);
+            --accent-mid:     rgba(46, 111, 232, 0.22);
+            --accent-hover:   #1D5ED4;
+
+            --danger:         #D93B28;
+            --danger-soft:    rgba(217, 59, 40, 0.09);
+            --danger-mid:     rgba(217, 59, 40, 0.18);
+
+            --success:        #1A9E5E;
+            --success-soft:   rgba(26, 158, 94, 0.10);
+            --success-mid:    rgba(26, 158, 94, 0.20);
+
+            --border:         rgba(0, 0, 0, 0.07);
+            --border-strong:  rgba(0, 0, 0, 0.11);
+            --shadow-sm:      0 1px 3px rgba(0,0,0,0.05), 0 1px 2px rgba(0,0,0,0.03);
+            --shadow-card:    0 12px 48px rgba(0,0,0,0.09), 0 3px 10px rgba(0,0,0,0.05);
+            --shadow-btn:     0 4px 16px rgba(46,111,232,0.28);
+            --blur:           saturate(200%) blur(28px);
+
+            --r-sm:   10px;
+            --r-md:   14px;
+            --r-lg:   20px;
+            --r-xl:   28px;
+            --r-pill: 999px;
+
+            --spring:     cubic-bezier(0.34, 1.56, 0.64, 1);
+            --ease-out:   cubic-bezier(0.22, 1, 0.36, 1);
+            --ease-inout: cubic-bezier(0.65, 0, 0.35, 1);
+        }
+
+        *, *::before, *::after {
+            margin: 0; padding: 0;
+            box-sizing: border-box;
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+        }
+
+        html { scroll-behavior: smooth; }
+
+        body {
+            font-family: 'DM Sans', -apple-system, sans-serif;
+            background: var(--bg);
+            color: var(--ink);
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+
+        /* ─────────────────────────────────────────
+           ANIMATED ORB BACKGROUND
+        ───────────────────────────────────────── */
+        .orb-stage {
+            position: fixed;
+            inset: 0;
+            z-index: 0;
+            overflow: hidden;
+            pointer-events: none;
+        }
+
+        .orb {
+            position: absolute;
+            border-radius: 50%;
+            will-change: transform;
+        }
+
+        .orb-1 {
+            width: 700px; height: 700px;
+            background: radial-gradient(circle at 40% 40%, #80C8FF 0%, #4AAEE8 50%, transparent 75%);
+            filter: blur(72px);
+            opacity: 0.60;
+            top: -200px; left: -180px;
+            animation: drift1 20s var(--ease-inout) infinite alternate;
+        }
+
+        .orb-2 {
+            width: 600px; height: 600px;
+            background: radial-gradient(circle at 50% 50%, #72EDD0 0%, #38D4AA 55%, transparent 78%);
+            filter: blur(80px);
+            opacity: 0.55;
+            bottom: -160px; right: -120px;
+            animation: drift2 24s var(--ease-inout) infinite alternate;
+        }
+
+        .orb-3 {
+            width: 480px; height: 480px;
+            background: radial-gradient(circle at 45% 45%, #FFCBB4 0%, #FFB090 55%, transparent 78%);
+            filter: blur(70px);
+            opacity: 0.60;
+            top: 30%; right: 5%;
+            animation: drift3 17s var(--ease-inout) infinite alternate;
+        }
+
+        .orb-4 {
+            width: 400px; height: 400px;
+            background: radial-gradient(circle at 50% 50%, #D8BFFF 0%, #BC9DFF 55%, transparent 78%);
+            filter: blur(65px);
+            opacity: 0.52;
+            top: 48%; left: 10%;
+            animation: drift4 22s var(--ease-inout) infinite alternate;
+        }
+
+        .orb-5 {
+            width: 300px; height: 300px;
+            background: radial-gradient(circle at 50% 50%, #FFE999 0%, #FFD55A 60%, transparent 80%);
+            filter: blur(60px);
+            opacity: 0.40;
+            top: 4%; right: 18%;
+            animation: drift5 15s var(--ease-inout) infinite alternate;
+        }
+
+        @keyframes drift1 {
+            0%   { transform: translate(0,   0)    scale(1);    }
+            40%  { transform: translate(55px, 45px) scale(1.06);}
+            75%  { transform: translate(25px, 85px) scale(0.96);}
+            100% { transform: translate(75px, 35px) scale(1.04);}
+        }
+        @keyframes drift2 {
+            0%   { transform: translate(0,   0)      scale(1);    }
+            35%  { transform: translate(-55px,-60px) scale(1.08);}
+            70%  { transform: translate(-80px,-20px) scale(0.94);}
+            100% { transform: translate(-35px,-72px) scale(1.05);}
+        }
+        @keyframes drift3 {
+            0%   { transform: translate(0,   0)    scale(1);    }
+            50%  { transform: translate(-45px, 55px) scale(1.10);}
+            100% { transform: translate(35px,-35px)  scale(0.95);}
+        }
+        @keyframes drift4 {
+            0%   { transform: translate(0,   0)    scale(1);    }
+            30%  { transform: translate(55px,-42px) scale(1.07);}
+            65%  { transform: translate(-30px,30px) scale(0.93);}
+            100% { transform: translate(42px,-58px) scale(1.04);}
+        }
+        @keyframes drift5 {
+            0%   { transform: translate(0,   0)    scale(1);    }
+            60%  { transform: translate(-65px,42px) scale(1.12);}
+            100% { transform: translate(28px,-22px) scale(0.90);}
+        }
+
+        .orb-stage::after {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='300' height='300'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.75' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='300' height='300' filter='url(%23n)' opacity='0.035'/%3E%3C/svg%3E");
+            background-size: 200px 200px;
+            opacity: 0.5;
+        }
+
+        /* ─────────────────────────────────────────
+           NAVIGATION BAR
+        ───────────────────────────────────────── */
+        .nav-bar {
+            position: fixed;
+            top: 0; left: 0; right: 0;
+            z-index: 200;
+            height: 54px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 28px;
+            background: rgba(240, 238, 233, 0.78);
+            backdrop-filter: var(--blur);
+            -webkit-backdrop-filter: var(--blur);
+            border-bottom: 1px solid rgba(255,255,255,0.75);
+            box-shadow: 0 1px 0 rgba(0,0,0,0.04),
+                        inset 0 -1px 0 rgba(255,255,255,0.50);
+        }
+
+        .nav-brand {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            text-decoration: none;
+        }
+
+        .nav-logo {
+            width: 30px; 
+            height: 30px;
+            border-radius: 9px;
+            object-fit: contain;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.12);
+        }
+
+        .nav-name {
+            font-family: 'Fraunces', serif;
+            font-size: 17px;
+            font-weight: 500;
+            letter-spacing: -0.3px;
+            color: var(--ink);
+        }
+
+        .nav-badge {
+            font-size: 11.5px;
+            font-weight: 600;
+            letter-spacing: 0.01em;
+            color: var(--accent);
+            background: var(--accent-soft);
+            padding: 4px 12px;
+            border-radius: var(--r-pill);
+            border: 1px solid var(--accent-mid);
+        }
+
+        /* ─────────────────────────────────────────
+           SCAFFOLD
+        ───────────────────────────────────────── */
+        .scaffold {
+            position: relative;
+            z-index: 1;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: flex-start;
+            padding: 78px 20px 30px;
+        }
+
+        /* ─────────────────────────────────────────
+           MAIN CARD
+        ───────────────────────────────────────── */
+        .card {
+            width: 100%;
+            max-width: 660px;
+            background: var(--glass);
+            backdrop-filter: var(--blur);
+            -webkit-backdrop-filter: var(--blur);
+            border: 1px solid var(--glass-border);
+            border-radius: var(--r-xl);
+            box-shadow: var(--shadow-card),
+                        inset 0 1px 0 rgba(255,255,255,0.90);
+            padding: 36px 34px 42px;
+            animation: cardReveal 0.60s var(--ease-out) both;
+        }
+
+        /* ─────────────────────────────────────────
+           TWO-COLUMN LAYOUT WITH CALENDAR
+        ───────────────────────────────────────── */
+        .content-wrapper {
+            width: 100%;
+            max-width: 1020px;
+            display: grid;
+            grid-template-columns: 660px 320px;
+            gap: 28px;
+            align-items: start;
+        }
+
+        @media (max-width: 1024px) {
+            .content-wrapper {
+                grid-template-columns: 1fr;
+                max-width: 660px;
+            }
+        }
+
+        /* ─────────────────────────────────────────
+           MINI CALENDAR
+        ───────────────────────────────────────── */
+        .calendar-card {
+            background: var(--glass);
+            backdrop-filter: var(--blur);
+            -webkit-backdrop-filter: var(--blur);
+            border: 1px solid var(--glass-border);
+            border-radius: var(--r-xl);
+            box-shadow: var(--shadow-card),
+                        inset 0 1px 0 rgba(255,255,255,0.90);
+            padding: 24px 20px;
+            animation: cardReveal 0.60s var(--ease-out) 0.1s both;
+            position: sticky;
+            top: 78px;
+        }
+
+        .calendar-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 16px;
+        }
+
+        .calendar-month {
+            font-family: 'Fraunces', serif;
+            font-size: 16px;
+            font-weight: 500;
+            color: var(--ink);
+        }
+
+        .calendar-nav {
+            display: flex;
+            gap: 4px;
+        }
+
+        .calendar-nav-btn {
+            width: 28px;
+            height: 28px;
+            border: none;
+            background: rgba(0,0,0,0.04);
+            border-radius: 8px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--ink-secondary);
+            transition: all 0.15s ease;
+        }
+
+        .calendar-nav-btn:hover {
+            background: rgba(0,0,0,0.08);
+            transform: scale(1.05);
+        }
+
+        .calendar-grid {
+            display: grid;
+            grid-template-columns: repeat(7, 1fr);
+            gap: 6px;
+            text-align: center;
+        }
+
+        .calendar-day-name {
+            font-size: 11px;
+            font-weight: 600;
+            color: var(--ink-tertiary);
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            padding: 4px 0;
+        }
+
+        .calendar-date {
+            font-size: 13px;
+            padding: 8px 0;
+            border-radius: 8px;
+            cursor: pointer;
+            color: var(--ink-secondary);
+            transition: all 0.15s ease;
+        }
+
+        .calendar-date:hover {
+            background: rgba(0,0,0,0.06);
+        }
+
+        .calendar-date.today {
+            background: var(--accent);
+            color: #fff;
+            font-weight: 600;
+        }
+
+        .calendar-date.other-month {
+            color: var(--ink-ghost);
+        }
+
+        .calendar-date.has-task::after {
+            content: '';
+            display: block;
+            width: 4px;
+            height: 4px;
+            background: var(--accent);
+            border-radius: 50%;
+            margin: 2px auto 0;
+        }
+
+        .calendar-date.today.has-task::after {
+            background: #fff;
+        }
+
+        @keyframes cardReveal {
+            from { opacity: 0; transform: translateY(30px) scale(0.972); }
+            to   { opacity: 1; transform: translateY(0)    scale(1);     }
+        }
+
+        /* ─────────────────────────────────────────
+           PAGE HEADER
+        ───────────────────────────────────────── */
+        .page-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 28px;
+        }
+
+        .page-title {
+            font-family: 'Fraunces', serif;
+            font-size: 30px;
+            font-weight: 500;
+            letter-spacing: -0.7px;
+            color: var(--ink);
+            line-height: 1.1;
+        }
+
+        /* ─────────────────────────────────────────
+           BUTTONS
+        ───────────────────────────────────────── */
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+            padding: 10px 22px;
+            border: none;
+            border-radius: var(--r-pill);
+            font-family: 'DM Sans', sans-serif;
+            font-size: 14px;
+            font-weight: 500;
+            letter-spacing: -0.1px;
+            cursor: pointer;
+            text-decoration: none;
+            transition:
+                transform 0.20s var(--spring),
+                box-shadow 0.20s var(--ease-out),
+                background 0.15s ease;
+            white-space: nowrap;
+            appearance: none;
+            -webkit-appearance: none;
+        }
+
+        .btn:active { transform: scale(0.93) !important; }
+
+        .btn-primary {
+            background: var(--accent);
+            color: #fff;
+            box-shadow: var(--shadow-btn);
+        }
+        .btn-primary:hover {
+            background: var(--accent-hover);
+            transform: scale(1.04) translateY(-1px);
+            box-shadow: 0 7px 22px rgba(46,111,232,0.38);
+        }
+
+        .btn-danger {
+            background: var(--danger-soft);
+            color: var(--danger);
+            border: 1px solid var(--danger-mid);
+        }
+        .btn-danger:hover {
+            background: var(--danger-mid);
+            transform: scale(1.03);
+        }
+
+        .btn-success {
+            background: var(--success-soft);
+            color: var(--success);
+            border: 1px solid var(--success-mid);
+        }
+        .btn-success:hover {
+            background: var(--success-mid);
+            transform: scale(1.03);
+        }
+
+        .btn-ghost {
+            background: rgba(0,0,0,0.04);
+            color: var(--ink-secondary);
+            border: 1px solid var(--border-strong);
+        }
+        .btn-ghost:hover {
+            background: rgba(0,0,0,0.08);
+            transform: scale(1.03);
+        }
+
+        /* ─────────────────────────────────────────
+           FORM ELEMENTS
+        ───────────────────────────────────────── */
+        .form-group { margin-bottom: 18px; }
+
+        .form-group label,
+        form p label {
+            display: block;
+            font-size: 11.5px;
+            font-weight: 600;
+            letter-spacing: 0.07em;
+            text-transform: uppercase;
+            color: var(--ink-tertiary);
+            margin-bottom: 7px;
+        }
+
+        .form-input,
+        input[type="text"],
+        input[type="email"],
+        input[type="password"],
+        textarea,
+        select {
+            width: 100%;
+            padding: 13px 16px;
+            background: rgba(255,255,255,0.85);
+            border: 1px solid var(--border-strong);
+            border-radius: var(--r-md);
+            font-family: 'DM Sans', sans-serif;
+            font-size: 15px;
+            color: var(--ink);
+            transition: border-color 0.2s ease, box-shadow 0.2s ease, background 0.2s ease;
+            outline: none;
+            appearance: none;
+            -webkit-appearance: none;
+            box-shadow: var(--shadow-sm);
+        }
+
+        .form-input:focus,
+        input[type="text"]:focus,
+        input[type="email"]:focus,
+        input[type="password"]:focus,
+        textarea:focus,
+        select:focus {
+            border-color: var(--accent);
+            background: #fff;
+            box-shadow: 0 0 0 3px var(--accent-soft), 0 1px 4px rgba(0,0,0,0.04);
+        }
+
+        .form-input::placeholder,
+        input::placeholder,
+        textarea::placeholder { color: var(--ink-ghost); }
+
+        textarea { resize: vertical; min-height: 100px; line-height: 1.55; }
+        form p   { margin-bottom: 18px; }
+
+        /* ─────────────────────────────────────────
+           FOOTER
+        ───────────────────────────────────────── */
+        .footer {
+            width: 100%;
+            max-width: 1020px;
+            margin-top: 32px;
+            padding: 18px 24px;
+            text-align: center;
+            font-size: 13px;
+            color: var(--ink-tertiary);
+            background: rgba(255, 255, 255, 0.55);
+            backdrop-filter: var(--blur);
+            -webkit-backdrop-filter: var(--blur);
+            border: 1px solid var(--glass-border);
+            border-radius: var(--r-lg);
+            box-shadow: var(--shadow-sm);
+        }
+
+        .footer-brand {
+            font-family: 'Fraunces', serif;
+            font-weight: 500;
+            color: var(--ink-secondary);
+            letter-spacing: -0.2px;
+        }
+
+        /* ─────────────────────────────────────────
+           DIVIDER / UTILS
+        ───────────────────────────────────────── */
+        .divider {
+            height: 1px;
+            background: var(--border);
+            margin: 24px 0;
+        }
+
+        ::-webkit-scrollbar { width: 5px; }
+        ::-webkit-scrollbar-track { background: transparent; }
+        ::-webkit-scrollbar-thumb { background: var(--ink-ghost); border-radius: 99px; }
+        ::selection { background: var(--accent-mid); }
+        :focus-visible { outline: 2px solid var(--accent); outline-offset: 3px; }
+
+       
+    </style>
+     {% block extra_css %}{% endblock %}
+</head>
+
+<body>
+    <!-- Animated orb backdrop -->
+    <div class="orb-stage" aria-hidden="true">
+        <div class="orb orb-1"></div>
+        <div class="orb orb-2"></div>
+        <div class="orb orb-3"></div>
+        <div class="orb orb-4"></div>
+        <div class="orb orb-5"></div>
+    </div>
+
+    <!-- Frosted nav bar -->
+    <nav class="nav-bar">
+        <a href="{% url 'todo_list' %}" class="nav-brand">
+           <img src="{% static 'img/logo.png' %}" alt="Muwoni Logo" class="nav-logo">
+            <span class="nav-name">Muwoni</span>
+        </a>
+        <span class="nav-badge">{% block status_label %}Home{% endblock %}</span>
+    </nav>
+
+    <!-- Main scaffold -->
+    <div class="scaffold">
+        <div class="content-wrapper">
+            <div class="card">
+                {% block content %}{% endblock %}
+            </div>
+            
+            <aside class="calendar-card">
+                <div class="calendar-header">
+                    <div class="calendar-month" id="calendar-month">April 2026</div>
+                    <div class="calendar-nav">
+                        <button class="calendar-nav-btn" id="prev-month">‹</button>
+                        <button class="calendar-nav-btn" id="next-month">›</button>
+                    </div>
+                <div class="calendar-grid" id="calendar-grid">
+                    <!-- JS fills this -->
+                </div>
+            </aside>
+        </div>
+        
+        <!-- Footer -->
+        <footer class="footer">
+            <span class="footer-brand">Muwoni Technologies</span> © {% now "Y" %} · All rights reserved
+        </footer>
+    </div>
+
+    <script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const monthEl = document.getElementById('calendar-month');
+        const gridEl = document.getElementById('calendar-grid');
+        const prevBtn = document.getElementById('prev-month');
+        const nextBtn = document.getElementById('next-month');
+        
+        let currentDate = new Date();
+        let taskDates = []; // Pass dates from Django like ['2026-04-28', '2026-04-30']
+        
+        function renderCalendar(date) {
+            const year = date.getFullYear();
+            const month = date.getMonth();
+            
+            monthEl.textContent = date.toLocaleDateString('en-US', { month: 'long', year: 'numeric' });
+            
+            const firstDay = new Date(year, month, 1);
+            const lastDay = new Date(year, month + 1, 0);
+            const startDay = firstDay.getDay();
+            const daysInMonth = lastDay.getDate();
+            
+            const today = new Date();
+            const isCurrentMonth = today.getFullYear() === year && today.getMonth() === month;
+            
+            let html = '';
+            const dayNames = ['S', 'M', 'T', 'W', 'T', 'F', 'S'];
+            dayNames.forEach(d => html += `<div class="calendar-day-name">${d}</div>`);
+            
+            const prevLastDay = new Date(year, month, 0).getDate();
+            for (let i = startDay - 1; i >= 0; i--) {
+                html += `<div class="calendar-date other-month">${prevLastDay - i}</div>`;
+            }
+            
+            for (let day = 1; day <= daysInMonth; day++) {
+                const isToday = isCurrentMonth && day === today.getDate();
+                const dateStr = `${year}-${String(month + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
+                const hasTask = taskDates.includes(dateStr);
+                
+                let classes = 'calendar-date';
+                if (isToday) classes += ' today';
+                if (hasTask) classes += ' has-task';
+                
+                html += `<div class="${classes}" data-date="${dateStr}">${day}</div>`;
+            }
+            
+            const totalCells = 7 + startDay + daysInMonth;
+            const remaining = totalCells % 7 === 0 ? 0 : 7 - (totalCells % 7);
+            for (let i = 1; i <= remaining; i++) {
+                html += `<div class="calendar-date other-month">${i}</div>`;
+            }
+            
+            gridEl.innerHTML = html;
+        }
+        
+        prevBtn.addEventListener('click', () => {
+            currentDate.setMonth(currentDate.getMonth() - 1);
+            renderCalendar(currentDate);
+        });
+        
+        nextBtn.addEventListener('click', () => {
+            currentDate.setMonth(currentDate.getMonth() + 1);
+            renderCalendar(currentDate);
+        });
+        
+        gridEl.addEventListener('click', (e) => {
+            if (e.target.classList.contains('calendar-date') && !e.target.classList.contains('other-month')) {
+                console.log('Selected date:', e.target.dataset.date);
+                // Hook this up to filter tasks later
+            }
+        });
+        
+        renderCalendar(currentDate);
+    });
+    </script>
+
+    {% block extra_js %}{% endblock %}
+</body>
+</html>
