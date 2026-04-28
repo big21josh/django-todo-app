@@ -1,0 +1,19 @@
+services:
+  - type: web
+    name: django-todo
+    env: python
+    region: oregon
+    plan: free
+    buildCommand: pip install -r requirements.txt && python manage.py migrate && python manage.py collectstatic --noinput
+    startCommand: gunicorn todoproject.wsgi:application
+    envVars:
+      - key: SECRET_KEY
+        scope: run_time
+        generateValue: true
+      - key: DEBUG
+        value: false
+      - key: ALLOWED_HOSTS
+        value: "*"
+databases:
+  - name: postgres
+    ipAllowList: []
