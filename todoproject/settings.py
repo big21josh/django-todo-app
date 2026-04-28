@@ -79,7 +79,7 @@ WSGI_APPLICATION = 'todoproject.wsgi.application'
 if config('DATABASE_URL', default=None):
     import dj_database_url
     DATABASES = {
-        'default': dj_database_url.config(conn_max_age=600)
+        'default': dj_database_url.config(conn_max_age=600, conn_health_checks=True)
     }
 else:
     DATABASES = {
@@ -88,6 +88,10 @@ else:
             'NAME': BASE_DIR / 'db.sqlite3',
         }
     }
+
+# Use SQLite for collectstatic during build if database connection fails
+if os.getenv('RENDER') and os.getenv('DATABASE_URL'):
+    DATABASES['default']['CONN_MAX_AGE'] = 600
 
 
 # Password validation
